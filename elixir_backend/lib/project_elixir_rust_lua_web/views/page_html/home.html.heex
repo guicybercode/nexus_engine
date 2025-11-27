@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust-Elixir-Lua Integration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #4CAF50;
+      color: white;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      min-height: 200px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .connected {
+      background: #d4edda;
+      color: #155724;
+    }
+    .disconnected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rust-Elixir-Lua Integration Demo</h1>
+    <div id="status" class="status disconnected">Disconnected</div>
+    <div>
+      <button onclick="connect()">Connect</button>
+      <button onclick="sendMove('left')">Move Left</button>
+      <button onclick="sendMove('right')">Move Right</button>
+      <button onclick="sendMove('up')">Move Up</button>
+      <button onclick="sendMove('down')">Move Down</button>
+      <button onclick="sendJump()">Jump</button>
+    </div>
+    <div id="output"></div>
+  </div>
+
+  <script src="/js/socket.js"></script>
+  <script>
+    let socket = null;
+    let channel = null;
+
+    function connect() {
+      socket = new Socket("/socket", {});
+      socket.connect();
+
+      channel = socket.channel("game:lobby", {});
+      
+      channel.on("action_result", payload => {
+        const output = document.getElementById("output");
+        output.textContent += JSON.stringify(payload, null, 2) + "\n\n";
+        output.scrollTop = output.scrollHeight;
+      });
+
+      channel.join()
+        .receive("ok", resp => {
+          console.log("Joined successfully", resp);
+          document.getElementById("status").textContent = "Connected";
+          document.getElementById("status").className = "status connected";
+        })
+        .receive("error", resp => {
+          console.log("Unable to join", resp);
+        });
+    }
+
+    function sendMove(direction) {
+      if (!channel) {
+        alert("Please connect first");
+        return;
+      }
+      channel.push("player_action", {
+        action: "move",
+        direction: direction,
+        player_id: "player_1"
+      });
+    }
+
+    function sendJump() {
+      if (!channel) {
+        alert("Please connect first");
+        return;
+      }
+      channel.push("player_action", {
+        action: "jump",
+        player_id: "player_1"
+      });
+    }
+  </script>
+</body>
+</html>
+
