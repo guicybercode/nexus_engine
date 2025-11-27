@@ -1,0 +1,2 @@
+Arc<(dyn for<'a, 'b> Fn(&'a mlua::Lua, mlua::Debug<'b>) -> Result<(), mlua::Error> + 'static)>
+std::option::Option<Arc<(dyn for<'a, 'b> Fn(&'a mlua::Lua, mlua::Debug<'b>) -> Result<(), mlua::Error> + 'static)>>

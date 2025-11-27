@@ -14,9 +14,4 @@ defmodule ProjectElixirRustLua.Application do
     opts = [strategy: :one_for_one, name: ProjectElixirRustLua.Supervisor]
     Supervisor.start_link(children, opts)
   end
-
-  @impl true
-  def config(config, _key) do
-    config
-  end
 end

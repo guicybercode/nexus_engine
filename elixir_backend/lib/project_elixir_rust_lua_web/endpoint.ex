@@ -14,6 +14,20 @@ defmodule ProjectElixirRustLuaWeb.Endpoint do
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]]
 
+  # Serve arquivos estáticos de priv/static
+  plug Plug.Static,
+    at: "/",
+    from: :project_elixir_rust_lua,
+    gzip: false,
+    only: ~w(assets fonts images js css favicon.ico robots.txt)
+
+  # Code reloading em desenvolvimento
+  if code_reloading? do
+    socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
+    plug Phoenix.LiveReloader
+    plug Phoenix.CodeReloader
+  end
+
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 

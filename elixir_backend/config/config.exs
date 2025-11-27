@@ -18,3 +18,6 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :phoenix, :json_library, Jason
+
+# Import environment specific config
+import_config "#{config_env()}.exs"

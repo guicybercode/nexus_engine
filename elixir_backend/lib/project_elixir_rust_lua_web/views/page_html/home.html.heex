@@ -3,71 +3,565 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rust-Elixir-Lua Integration</title>
+  <title>Rust-Elixir-Lua Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a24;
+      --bg-elevated: #22222e;
+      --accent-primary: #6366f1;
+      --accent-secondary: #8b5cf6;
+      --accent-tertiary: #a855f7;
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.3);
+      --error: #ef4444;
+      --error-glow: rgba(239, 68, 68, 0.3);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #f5f5f5;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 70%);
+      animation: aurora 20s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes aurora {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-5%, -5%) rotate(3deg); }
+    }
+
     .container {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 720px;
     }
-    button {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 16px;
-      cursor: pointer;
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .logo-icon svg {
+      width: 26px;
+      height: 26px;
+      stroke: white;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-weight: 400;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 24px;
+      background: var(--bg-secondary);
+      border-radius: 14px;
+      margin-bottom: 28px;
+      border: 1px solid var(--border);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .status-bar.connected {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 30px var(--success-glow);
+    }
+
+    .status-bar.disconnected {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--error);
+      box-shadow: 0 0 12px var(--error-glow);
+      transition: all 0.4s ease;
+    }
+
+    .status-bar.connected .status-dot {
+      background: var(--success);
+      box-shadow: 0 0 12px var(--success-glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+    }
+
+    .status-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+
+    .status-bar.connected .status-text {
+      color: var(--success);
+    }
+
+    .status-bar.disconnected .status-text {
+      color: var(--error);
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      position: relative;
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
       border: none;
-      border-radius: 4px;
-      background: #4CAF50;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
       color: white;
+      box-shadow: 0 4px 20px var(--accent-glow);
     }
-    button:hover {
-      background: #45a049;
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
     }
-    #output {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f9f9f9;
-      border-radius: 4px;
-      min-height: 200px;
-      font-family: monospace;
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .direction-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 8px;
+      max-width: 200px;
+      margin: 0 auto;
+    }
+
+    .direction-pad .btn {
+      padding: 16px;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .direction-pad .btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .direction-pad .empty {
+      visibility: hidden;
+    }
+
+    .output-section {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .output-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .output-clear {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .output-clear:hover {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .output-content {
+      padding: 18px;
+      min-height: 180px;
+      max-height: 280px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
       white-space: pre-wrap;
+      word-break: break-word;
     }
-    .status {
-      padding: 10px;
-      margin: 10px 0;
+
+    .output-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .output-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .output-content::-webkit-scrollbar-thumb {
+      background: var(--border);
       border-radius: 4px;
     }
-    .connected {
-      background: #d4edda;
-      color: #155724;
+
+    .output-content::-webkit-scrollbar-thumb:hover {
+      background: var(--border-hover);
     }
-    .disconnected {
-      background: #f8d7da;
-      color: #721c24;
+
+    .output-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .output-entry {
+      padding: 12px 14px;
+      background: var(--bg-card);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .output-entry:last-child {
+      margin-bottom: 0;
+    }
+
+    .output-entry .action {
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    .output-entry .value {
+      color: var(--success);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .tech-stack {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .tech-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .tech-dot.rust { background: #dea584; }
+    .tech-dot.elixir { background: #9b59b6; }
+    .tech-dot.lua { background: #000080; }
+
+    @media (max-width: 640px) {
+      .card {
+        padding: 28px 20px;
+        border-radius: 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        font-size: 13px;
+      }
+
+      .direction-pad {
+        max-width: 160px;
+      }
+
+      .direction-pad .btn {
+        padding: 12px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Rust-Elixir-Lua Integration Demo</h1>
-    <div id="status" class="status disconnected">Disconnected</div>
-    <div>
-      <button onclick="connect()">Connect</button>
-      <button onclick="sendMove('left')">Move Left</button>
-      <button onclick="sendMove('right')">Move Right</button>
-      <button onclick="sendMove('up')">Move Up</button>
-      <button onclick="sendMove('down')">Move Down</button>
-      <button onclick="sendJump()">Jump</button>
+    <div class="card">
+      <div class="header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+        </div>
+        <h1>Game Engine Demo</h1>
+        <p class="subtitle">Rust · Elixir · Lua Integration</p>
+      </div>
+
+      <div id="status" class="status-bar disconnected">
+        <span class="status-dot"></span>
+        <span class="status-text">Disconnected</span>
+      </div>
+
+      <div class="controls">
+        <div class="controls-row">
+          <button class="btn btn-primary btn-icon" onclick="connect()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+            Connect
+          </button>
+        </div>
+
+        <div class="direction-pad">
+          <div class="empty"></div>
+          <button class="btn btn-secondary" onclick="sendMove('up')" title="Move Up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+          </button>
+          <div class="empty"></div>
+          
+          <button class="btn btn-secondary" onclick="sendMove('left')" title="Move Left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+          </button>
+          <button class="btn btn-primary" onclick="sendJump()" title="Jump" style="border-radius: 50%;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+          </button>
+          <button class="btn btn-secondary" onclick="sendMove('right')" title="Move Right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+          
+          <div class="empty"></div>
+          <button class="btn btn-secondary" onclick="sendMove('down')" title="Move Down">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+          </button>
+          <div class="empty"></div>
+        </div>
+      </div>
+
+      <div class="output-section">
+        <div class="output-header">
+          <span class="output-title">Console Output</span>
+          <button class="output-clear" onclick="clearOutput()">Clear</button>
+        </div>
+        <div id="output" class="output-content">
+          <div class="output-empty">Waiting for connection...</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="tech-stack">
+          <div class="tech-item">
+            <span class="tech-dot rust"></span>
+            Rust Engine
+          </div>
+          <div class="tech-item">
+            <span class="tech-dot elixir"></span>
+            Elixir Backend
+          </div>
+          <div class="tech-item">
+            <span class="tech-dot lua"></span>
+            Lua Scripts
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="output"></div>
   </div>
 
   <script src="/js/socket.js"></script>
@@ -76,31 +570,98 @@
     let channel = null;
 
     function connect() {
+      if (socket) {
+        socket.disconnect();
+      }
+      
       socket = new Socket("/socket", {});
       socket.connect();
+      
+      socket.onOpen(function() {
+        console.log("Socket connected");
+      });
+
+      socket.onError(function(error) {
+        console.error("Socket error:", error);
+        updateStatus(false);
+      });
+
+      socket.onClose(function() {
+        console.log("Socket closed");
+        updateStatus(false);
+      });
 
       channel = socket.channel("game:lobby", {});
       
-      channel.on("action_result", payload => {
-        const output = document.getElementById("output");
-        output.textContent += JSON.stringify(payload, null, 2) + "\n\n";
-        output.scrollTop = output.scrollHeight;
+      channel.on("action_result", function(payload) {
+        addOutput(payload);
       });
 
       channel.join()
-        .receive("ok", resp => {
+        .receive("ok", function(resp) {
           console.log("Joined successfully", resp);
-          document.getElementById("status").textContent = "Connected";
-          document.getElementById("status").className = "status connected";
+          updateStatus(true);
+          addOutput({ event: "connected", message: "Successfully joined game lobby" });
         })
-        .receive("error", resp => {
+        .receive("error", function(resp) {
           console.log("Unable to join", resp);
+          updateStatus(false);
+          addOutput({ event: "error", message: "Failed to join: " + JSON.stringify(resp) });
         });
+    }
+
+    function updateStatus(connected) {
+      const statusBar = document.getElementById("status");
+      const statusText = statusBar.querySelector(".status-text");
+      
+      if (connected) {
+        statusBar.classList.remove("disconnected");
+        statusBar.classList.add("connected");
+        statusText.textContent = "Connected";
+      } else {
+        statusBar.classList.remove("connected");
+        statusBar.classList.add("disconnected");
+        statusText.textContent = "Disconnected";
+      }
+    }
+
+    function addOutput(data) {
+      const output = document.getElementById("output");
+      const empty = output.querySelector(".output-empty");
+      if (empty) empty.remove();
+
+      const entry = document.createElement("div");
+      entry.className = "output-entry";
+      
+      let html = "";
+      if (data.action) {
+        html += `<span class="action">${data.action}</span>`;
+        if (data.direction) html += ` → ${data.direction}`;
+        if (data.new_position) {
+          html += `<br>Position: <span class="value">x: ${data.new_position.x.toFixed(2)}, y: ${data.new_position.y.toFixed(2)}</span>`;
+        }
+        if (data.velocity) {
+          html += `<br>Velocity: <span class="value">x: ${data.velocity.x.toFixed(2)}, y: ${data.velocity.y.toFixed(2)}</span>`;
+        }
+      } else if (data.event) {
+        html += `<span class="action">${data.event}</span>: ${data.message}`;
+      } else {
+        html = JSON.stringify(data, null, 2);
+      }
+      
+      entry.innerHTML = html;
+      output.appendChild(entry);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearOutput() {
+      const output = document.getElementById("output");
+      output.innerHTML = '<div class="output-empty">Console cleared</div>';
     }
 
     function sendMove(direction) {
       if (!channel) {
-        alert("Please connect first");
+        addOutput({ event: "warning", message: "Please connect first" });
         return;
       }
       channel.push("player_action", {
@@ -112,7 +673,7 @@
 
     function sendJump() {
       if (!channel) {
-        alert("Please connect first");
+        addOutput({ event: "warning", message: "Please connect first" });
         return;
       }
       channel.push("player_action", {
@@ -123,4 +684,3 @@
   </script>
 </body>
 </html>
-

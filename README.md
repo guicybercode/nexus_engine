@@ -98,6 +98,12 @@ The server will start on `http://localhost:4000`.
 3. Use the movement buttons to send player actions
 4. View real-time results in the output area
 
+### Application Screenshot
+
+![Application Running](screenshot.png)
+
+*Screenshot showing the web interface with connected WebSocket, player movement controls, and real-time action results*
+
 ### Example API Flow
 
 1. **Client sends action**:

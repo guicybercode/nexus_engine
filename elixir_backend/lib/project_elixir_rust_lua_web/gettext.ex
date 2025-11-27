@@ -11,5 +11,5 @@ defmodule ProjectElixirRustLuaWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for details.
   """
-  use Gettext, otp_app: :project_elixir_rust_lua
+  use Gettext.Backend, otp_app: :project_elixir_rust_lua
 end

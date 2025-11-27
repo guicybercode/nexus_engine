@@ -14,7 +14,7 @@ defmodule ProjectElixirRustLua.MixProject do
       rustler: [
         modules: [
           RustEngine: [
-            path: "../rust_engine",
+            path: Path.expand("../rust_engine", __DIR__),
             mode: :release
           ]
         ]
@@ -44,7 +44,7 @@ defmodule ProjectElixirRustLua.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:plug_cowboy, "~> 2.5"},
-      {:rustler, "~> 0.30.0"},
+      {:rustler, "~> 0.29.0"},
       {:gettext, "~> 0.20"}
     ]
   end

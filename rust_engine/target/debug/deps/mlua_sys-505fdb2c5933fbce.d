@@ -1,0 +1,10 @@
+/home/guicybercode/Documents/gui_things/project_elixir_rust_lua/rust_engine/target/debug/deps/mlua_sys-505fdb2c5933fbce.d: /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lib.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/macros.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/mod.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lauxlib.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lua.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lualib.rs
+
+/home/guicybercode/Documents/gui_things/project_elixir_rust_lua/rust_engine/target/debug/deps/libmlua_sys-505fdb2c5933fbce.rmeta: /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lib.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/macros.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/mod.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lauxlib.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lua.rs /home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lualib.rs
+
+/home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lib.rs:
+/home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/macros.rs:
+/home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/mod.rs:
+/home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lauxlib.rs:
+/home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lua.rs:
+/home/guicybercode/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mlua-sys-0.6.8/src/lua54/lualib.rs:

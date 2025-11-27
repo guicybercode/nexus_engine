@@ -1,0 +1,2 @@
+Unique<(dyn for<'a, 'b> Fn(&'a mlua::Lua, &'b str, bool) -> Result<(), mlua::Error> + 'static)>
+std::option::Option<Box<(dyn for<'a, 'b> Fn(&'a mlua::Lua, &'b str, bool) -> Result<(), mlua::Error> + 'static)>>
